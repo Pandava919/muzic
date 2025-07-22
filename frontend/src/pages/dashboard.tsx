@@ -1,3 +1,3 @@
 export const Dashboard = () =>{
-    return <div className="text-white">DashBoard</div>
+    return <div className="text-white pt-17">DashBoard</div>
 }

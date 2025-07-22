@@ -1,7 +1,5 @@
 import { Schema, model } from 'mongoose';
 import { ref } from 'process';
-import { string } from 'zod';
-import { required } from 'zod/v4/core/util.cjs';
 
 const UserSchema = new Schema({
     email: {
@@ -16,7 +14,20 @@ const UserSchema = new Schema({
     image: {
         type: String,
         required: true
-    }
+    },
+    role:{
+        type: String,
+        enum:['user', 'streamer']
+    },
+    streams:[{
+        type:Schema.Types.ObjectId,
+        ref: 'Streams'
+    }],
+    upVotes:[{
+        type:Schema.Types.ObjectId,
+        ref:'UpVotes'
+    }],
+
 },
 {
     timestamps: true,
@@ -27,16 +38,51 @@ export const User = model('User', UserSchema);
 
 
 const StreamsSchema = new Schema({
-    userId :{
+    type: {
+        type: String,
+        enum:['youtube', 'spotify']
+    },
+    active: {
+        type: Boolean,
+        default:false
+    },
+    upvotes: {
+        type: Number,
+    },
+    user :{
         type: Schema.Types.ObjectId,
         ref: 'User',
         required: true,
     },
+    upVotes:[{
+        type:Schema.Types.ObjectId,
+        ref:'UpVotes'
+    }],
     url: {
         type: String,
         required: true,
+    },
+    extractedId: {
+        type:String
     }
 })
 
 export const Streams = model('Streams', StreamsSchema);
+
+
+const upVotesSchema = new Schema({
+    user:{
+        type:Schema.Types.ObjectId,
+        ref:'User',
+        unique:true
+    },
+    stream: {
+        type:Schema.Types.ObjectId,
+        ref:'Streams',
+        unique:true
+
+    }
+})
+
+export const upVotes = model('UpVotes', upVotesSchema)
 
