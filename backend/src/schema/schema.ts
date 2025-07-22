@@ -1,4 +1,7 @@
 import { Schema, model } from 'mongoose';
+import { ref } from 'process';
+import { string } from 'zod';
+import { required } from 'zod/v4/core/util.cjs';
 
 const UserSchema = new Schema({
     email: {
@@ -6,13 +9,14 @@ const UserSchema = new Schema({
         required: true,
         unique: true,
     },
-    password: {
-        type: String,
-        required: true,
-    },
     name: {
         type: String,
+        required: true
     },
+    image: {
+        type: String,
+        required: true
+    }
 },
 {
     timestamps: true,
