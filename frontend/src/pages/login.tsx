@@ -17,8 +17,9 @@ const Login = () => {
     const CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
     const onSuccess = async(credentials: CredentialsResponse) => {
       try {
-        // const response = await axios.post('http://localhost:8080/login', credentials);
-        // setIsLogedIn(true);  
+        const response = await axios.post('http://localhost:8080/login', credentials, { withCredentials:true });
+        // setIsLogedIn(true);
+        console.log(response)  
         navigate('/dashboard')
         
       } catch (error) {

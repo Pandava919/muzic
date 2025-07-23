@@ -2,29 +2,37 @@ import express, { Express,Request, Response, NextFunction } from 'express';
 import { User } from './schema/schema';
 import mongoose from 'mongoose';
 import cors from 'cors'
-import { email, string, z } from 'zod';
-import {OAuth2Client} from 'google-auth-library'
+import { string, z } from 'zod';
+import { OAuth2Client } from 'google-auth-library'
 import * as dotenv from 'dotenv';
+import jwt from 'jsonwebtoken'
+import cookieParser from 'cookie-parser';
+import { authMiddleWare } from './utils/middleware';
 dotenv.config();
 
 const PORT = 8080
 const app:Express = express();
 const client = new OAuth2Client();
 
+const JWT_SCRETE = process.env.JWT_PASSWORD || '1424';
+
 app.use(express.json());
+app.use(cookieParser());
 app.use(cors(
     {
         origin: "http://localhost:5173",
         methods: ['GET', 'POST', 'DELETE', 'PUT'],
-        credentials: true
+        credentials: true,
+        // allowedHeaders: ['Content-Type', 'Authorization'],
+
     }
 ));
 
 
 const loginSchema = z.object({
-    credential:string(),
+    credential: string(),
     client_id: string(),
-    select_by:string().optional()
+    select_by: string().optional()
 
 })
 
@@ -40,13 +48,26 @@ app.post('/login', async(req: Request, res: Response, next: NextFunction)=>{
    const userExist = await User.findOne({email:payload?.email});
    if(!userExist){
        const user = await User.create({email:payload?.email, name:payload?.name, image:payload?.picture});
-       res.status(200).json({user})
+
+       const token = jwt.sign({userId: user._id, email:payload?.email}, JWT_SCRETE)
+       res.cookie('token', token, {
+        httpOnly: true,
+        secure: false,
+        sameSite: 'lax'
+       })
+       
+
+       return res.status(200).json({message: 'Log In successful'});
    }
-   res.status(403).json({message:'User already present'})
+   return res.status(403).json({message:'User already present'});
    
    } catch (err) {
     next(err);
    }
+})
+
+app.get('/streams', authMiddleWare, (req: Request, res: Response, next: NextFunction) => {
+    res.send('reached streams')
 })
 
 app.use(/(.*)/, (req: Request, res: Response, next: NextFunction) => {      //wild card route
