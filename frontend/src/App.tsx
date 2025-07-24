@@ -1,7 +1,7 @@
 import { Header } from "./pages/header"
 import {BrowserRouter, Routes, Route} from 'react-router-dom'
 import Login from "./pages/login"
-import { Dashboard } from "./pages/dashboard"
+import Dashboard from "./pages/dashboard"
 
 function App() {
   

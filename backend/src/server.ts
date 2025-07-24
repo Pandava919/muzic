@@ -1,5 +1,5 @@
 import express, { Express,Request, Response, NextFunction } from 'express';
-import { User } from './schema/schema';
+import { Streams, User } from './schema/schema';
 import mongoose from 'mongoose';
 import cors from 'cors'
 import { string, z } from 'zod';
@@ -66,8 +66,33 @@ app.post('/login', async(req: Request, res: Response, next: NextFunction)=>{
    }
 })
 
-app.get('/streams', authMiddleWare, (req: Request, res: Response, next: NextFunction) => {
-    res.send('reached streams')
+app.post('/streams', authMiddleWare, async(req: Request, res: Response, next: NextFunction) => {
+    try {
+        const url = req.body.url || '';
+        //https://www.youtube.com/watch?v=U8QhB8_0t2g
+        //@ts-ignore
+        const userId = req.userId;
+        const extractedId = url.split('?v=')[1];
+        const type = url.includes('youtube') ? 'youtube' : 'spotify';
+        const stream = await Streams.create({ user: userId, extractedId, type, upvotes: 0, url })
+        const user = await User.findByIdAndUpdate(userId,{
+            $push: {streams: stream._id}
+        })
+        res.status(200).json({ message: 'added successfully' })
+        
+    } catch (error) {
+        next(error);
+        
+    }
+    
+    
+})
+
+app.get('/streams',  authMiddleWare, async(req: Request, res: Response, next: NextFunction) => {
+    //@ts-ignore
+    const userId = req.userId;
+    const streams = await Streams.find({user: userId}).sort({ upvotes: 1 })
+    res.status(200).json({ streams })
 })
 
 app.use(/(.*)/, (req: Request, res: Response, next: NextFunction) => {      //wild card route

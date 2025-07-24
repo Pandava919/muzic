@@ -6,7 +6,7 @@ export const Header = () => {
     
     return(
         <>
-            <nav className="flex justify-between items-center px-10 py-3 shadow-md shadow-gray-900 fixed top-0 z-0 w-full">
+            <nav className="flex bg-gray-950 justify-between items-center px-10 py-3 shadow-md shadow-gray-700 w-full">
                 <div>
                     <h1 className="font-medium font-serif text-3xl text-white">Muzic</h1>
                 </div>
